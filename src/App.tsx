@@ -147,6 +147,9 @@ function AskStPetersPage() {
     const value = new URLSearchParams(window.location.search).get('source')
     return value?.trim() || 'direct'
   })
+  const [showSourceDebug] = useState(() => {
+    return new URLSearchParams(window.location.search).get('debug') === 'true'
+  })
 
   const copyPilotEmail = async () => {
     if (!navigator.clipboard) {
@@ -174,7 +177,7 @@ function AskStPetersPage() {
   return (
     <main className="ask-page">
       <section className="ask-hero" aria-labelledby="ask-title">
-        <div className="ask-source">Source: {source}</div>
+        {showSourceDebug && <div className="ask-source">Source: {source}</div>}
         <p className="ask-kicker">Visitor concierge pilot</p>
         <h1 id="ask-title">Ask St. Peter&apos;s</h1>
         <p className="ask-subtitle">
