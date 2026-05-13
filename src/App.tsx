@@ -22,9 +22,10 @@ type Recommendation = {
   bestFor: string
   timeNeeded: string
   area: string
-  phone: string
-  website: string
-  directions: string
+  verificationStatus: 'Needs verification' | 'Verified'
+  phone?: string
+  website?: string
+  directions?: string
   confirmationNote: string
 }
 
@@ -49,10 +50,7 @@ const recommendations: Recommendation[] = [
     bestFor: 'Couples, friends, and confident beginners',
     timeNeeded: '1.5-2.5 hours',
     area: 'Harbour or nearby sheltered shoreline',
-    phone: '+19025550101',
-    website: 'https://example.com/ask-st-peters/on-the-water',
-    directions:
-      'https://www.google.com/maps/search/?api=1&query=St.%20Peter%27s%20Nova%20Scotia%20harbour',
+    verificationStatus: 'Needs verification',
     confirmationNote:
       'Confirm weather, water conditions, gear, operator availability, and safety requirements before going.',
   },
@@ -64,10 +62,7 @@ const recommendations: Recommendation[] = [
     bestFor: 'Lunch, early dinner, and groups with mixed tastes',
     timeNeeded: '45-75 minutes',
     area: 'Village core or main road',
-    phone: '+19025550102',
-    website: 'https://example.com/ask-st-peters/food',
-    directions:
-      'https://www.google.com/maps/search/?api=1&query=food%20near%20St.%20Peter%27s%20Nova%20Scotia',
+    verificationStatus: 'Needs verification',
     confirmationNote:
       'Confirm hours, menu, accessibility, reservations, and seasonal service directly with the operator.',
   },
@@ -79,10 +74,7 @@ const recommendations: Recommendation[] = [
     bestFor: 'Curious visitors, photographers, and slower travel days',
     timeNeeded: '30-60 minutes',
     area: 'Canal area and village waterfront',
-    phone: '+19025550103',
-    website: 'https://example.com/ask-st-peters/history',
-    directions:
-      'https://www.google.com/maps/search/?api=1&query=St.%20Peter%27s%20Canal%20Nova%20Scotia',
+    verificationStatus: 'Needs verification',
     confirmationNote:
       'Confirm site access, opening hours, fees, guided options, and any current advisories before visiting.',
   },
@@ -94,10 +86,7 @@ const recommendations: Recommendation[] = [
     bestFor: 'Walkers, birdwatchers, and visitors with an open hour',
     timeNeeded: '45-90 minutes',
     area: 'Nearby trail, park, or shoreline path',
-    phone: '+19025550104',
-    website: 'https://example.com/ask-st-peters/trails',
-    directions:
-      'https://www.google.com/maps/search/?api=1&query=trails%20near%20St.%20Peter%27s%20Nova%20Scotia',
+    verificationStatus: 'Needs verification',
     confirmationNote:
       'Confirm trail conditions, parking, washrooms, pet rules, and weather before heading out.',
   },
@@ -109,10 +98,7 @@ const recommendations: Recommendation[] = [
     bestFor: 'Families with young children or multi-generation groups',
     timeNeeded: '60-120 minutes',
     area: 'Village, waterfront, or nearby open space',
-    phone: '+19025550105',
-    website: 'https://example.com/ask-st-peters/family',
-    directions:
-      'https://www.google.com/maps/search/?api=1&query=family%20activities%20near%20St.%20Peter%27s%20Nova%20Scotia',
+    verificationStatus: 'Needs verification',
     confirmationNote:
       'Confirm age suitability, washrooms, stroller access, food options, and current operating details.',
   },
@@ -124,10 +110,7 @@ const recommendations: Recommendation[] = [
     bestFor: 'Rain delays, relaxed mornings, and visitors without gear',
     timeNeeded: '30-75 minutes',
     area: 'Indoor stop in or near the village',
-    phone: '+19025550106',
-    website: 'https://example.com/ask-st-peters/rainy-day',
-    directions:
-      'https://www.google.com/maps/search/?api=1&query=indoor%20things%20to%20do%20near%20St.%20Peter%27s%20Nova%20Scotia',
+    verificationStatus: 'Needs verification',
     confirmationNote:
       'Confirm hours, admission, accessibility, and seasonal availability before making the trip.',
   },
@@ -139,10 +122,7 @@ const recommendations: Recommendation[] = [
     bestFor: 'Road-trippers, marina guests, and late-afternoon gaps',
     timeNeeded: '10-25 minutes',
     area: 'Lookoff, wharf, or waterfront pull-in',
-    phone: '+19025550107',
-    website: 'https://example.com/ask-st-peters/easy',
-    directions:
-      'https://www.google.com/maps/search/?api=1&query=scenic%20view%20St.%20Peter%27s%20Nova%20Scotia',
+    verificationStatus: 'Needs verification',
     confirmationNote:
       'Confirm parking, public access, daylight, road conditions, and any posted restrictions on arrival.',
   },
@@ -154,10 +134,7 @@ const recommendations: Recommendation[] = [
     bestFor: 'Evenings, weekends, and visitors who like local happenings',
     timeNeeded: 'Varies by event',
     area: 'St. Peter\'s and surrounding communities',
-    phone: '+19025550108',
-    website: 'https://example.com/ask-st-peters/events',
-    directions:
-      'https://www.google.com/maps/search/?api=1&query=events%20near%20St.%20Peter%27s%20Nova%20Scotia',
+    verificationStatus: 'Needs verification',
     confirmationNote:
       'Confirm date, time, location, tickets, capacity, cancellation notices, and organizer details.',
   },
@@ -234,7 +211,7 @@ function AskStPetersPage() {
           <article className="recommendation-card" key={recommendation.name}>
             <div className="recommendation-topline">
               <span>{recommendation.category}</span>
-              <strong>Needs verification</strong>
+              <strong>{recommendation.verificationStatus}</strong>
             </div>
             <h2>{recommendation.name}</h2>
             <p className="recommendation-description">
@@ -255,22 +232,48 @@ function AskStPetersPage() {
               </div>
             </dl>
             <div className="recommendation-actions">
-              <a href={`tel:${recommendation.phone}`}>Call</a>
-              <a
-                href={recommendation.website}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Website / Book Direct
-              </a>
-              <a
-                href={recommendation.directions}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Directions
-              </a>
+              {recommendation.verificationStatus === 'Verified' ? (
+                <>
+                  {recommendation.phone && (
+                    <a href={`tel:${recommendation.phone}`}>Call</a>
+                  )}
+                  {recommendation.website && (
+                    <a
+                      href={recommendation.website}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      Website / Book Direct
+                    </a>
+                  )}
+                  {recommendation.directions && (
+                    <a
+                      href={recommendation.directions}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      Directions
+                    </a>
+                  )}
+                </>
+              ) : (
+                <>
+                  <button disabled type="button">
+                    Call pending
+                  </button>
+                  <button disabled type="button">
+                    Link pending
+                  </button>
+                  <button disabled type="button">
+                    Directions pending
+                  </button>
+                </>
+              )}
             </div>
+            <p className="placeholder-note">
+              This recommendation is a placeholder until the operator/location
+              is verified.
+            </p>
             <p className="confirmation-note">
               {recommendation.confirmationNote}
             </p>
