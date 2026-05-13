@@ -165,10 +165,24 @@ const recommendations: Recommendation[] = [
 
 function AskStPetersPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category>('All')
+  const [emailCopied, setEmailCopied] = useState(false)
   const [source] = useState(() => {
     const value = new URLSearchParams(window.location.search).get('source')
     return value?.trim() || 'direct'
   })
+
+  const copyPilotEmail = async () => {
+    if (!navigator.clipboard) {
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText('lucasliamlegacystudios@gmail.com')
+      setEmailCopied(true)
+    } catch {
+      setEmailCopied(false)
+    }
+  }
 
   const filteredRecommendations = useMemo(() => {
     if (selectedCategory === 'All') {
@@ -265,15 +279,23 @@ function AskStPetersPage() {
       </section>
 
       <section className="pilot-callout" aria-labelledby="pilot-title">
-        <h2 id="pilot-title">Founding pilot</h2>
-        <p>
-          Are you a local operator or host location? Ask St. Peter&apos;s is
-          opening a small founding pilot for verified recommendations and QR
-          host locations.
-        </p>
-        <a href="mailto:lucasliamlegacystudios@gmail.com?subject=Ask%20St.%20Peter's%20Founding%20Pilot">
-          Ask about the founding pilot
-        </a>
+        <div className="pilot-copy">
+          <h2 id="pilot-title">Founding pilot</h2>
+          <p>
+            Are you a local operator or host location? Ask St. Peter&apos;s is
+            opening a small founding pilot for verified recommendations and QR
+            host locations.
+          </p>
+          <p className="pilot-email">
+            <span>Email Lucas directly:</span>
+            <strong>lucasliamlegacystudios@gmail.com</strong>
+          </p>
+        </div>
+        <div className="pilot-actions">
+          <button type="button" onClick={copyPilotEmail}>
+            {emailCopied ? 'Email copied' : 'Copy email address'}
+          </button>
+        </div>
       </section>
     </main>
   )
