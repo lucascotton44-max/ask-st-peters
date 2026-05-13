@@ -1,10 +1,285 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
-function App() {
+type Category =
+  | 'All'
+  | 'On the water'
+  | 'Food & drinks'
+  | 'Local history'
+  | 'Nature & trails'
+  | 'Family-friendly'
+  | 'Rainy day'
+  | 'Something easy'
+  | 'Events'
+
+type Recommendation = {
+  name: string
+  category: Exclude<Category, 'All'>
+  description: string
+  bestFor: string
+  timeNeeded: string
+  area: string
+  phone: string
+  website: string
+  directions: string
+  confirmationNote: string
+}
+
+const categories: Category[] = [
+  'All',
+  'On the water',
+  'Food & drinks',
+  'Local history',
+  'Nature & trails',
+  'Family-friendly',
+  'Rainy day',
+  'Something easy',
+  'Events',
+]
+
+const recommendations: Recommendation[] = [
+  {
+    name: 'Sheltered Cove Paddle',
+    category: 'On the water',
+    description:
+      'A low-key water outing idea for calm conditions, good views, and a short first stop near the harbour.',
+    bestFor: 'Couples, friends, and confident beginners',
+    timeNeeded: '1.5-2.5 hours',
+    area: 'Harbour or nearby sheltered shoreline',
+    phone: '+19025550101',
+    website: 'https://example.com/ask-st-peters/on-the-water',
+    directions:
+      'https://www.google.com/maps/search/?api=1&query=St.%20Peter%27s%20Nova%20Scotia%20harbour',
+    confirmationNote:
+      'Confirm weather, water conditions, gear, operator availability, and safety requirements before going.',
+  },
+  {
+    name: 'Casual Local Bite',
+    category: 'Food & drinks',
+    description:
+      'A simple meal stop for visitors who want something relaxed before heading back out for the afternoon.',
+    bestFor: 'Lunch, early dinner, and groups with mixed tastes',
+    timeNeeded: '45-75 minutes',
+    area: 'Village core or main road',
+    phone: '+19025550102',
+    website: 'https://example.com/ask-st-peters/food',
+    directions:
+      'https://www.google.com/maps/search/?api=1&query=food%20near%20St.%20Peter%27s%20Nova%20Scotia',
+    confirmationNote:
+      'Confirm hours, menu, accessibility, reservations, and seasonal service directly with the operator.',
+  },
+  {
+    name: 'Canal & Village Story Stop',
+    category: 'Local history',
+    description:
+      'A short history-focused visit built around the canal, working waterfront, and local village context.',
+    bestFor: 'Curious visitors, photographers, and slower travel days',
+    timeNeeded: '30-60 minutes',
+    area: 'Canal area and village waterfront',
+    phone: '+19025550103',
+    website: 'https://example.com/ask-st-peters/history',
+    directions:
+      'https://www.google.com/maps/search/?api=1&query=St.%20Peter%27s%20Canal%20Nova%20Scotia',
+    confirmationNote:
+      'Confirm site access, opening hours, fees, guided options, and any current advisories before visiting.',
+  },
+  {
+    name: 'Quiet Trail Stretch',
+    category: 'Nature & trails',
+    description:
+      'A fresh-air walk idea with enough nature to reset the day without requiring a full hiking plan.',
+    bestFor: 'Walkers, birdwatchers, and visitors with an open hour',
+    timeNeeded: '45-90 minutes',
+    area: 'Nearby trail, park, or shoreline path',
+    phone: '+19025550104',
+    website: 'https://example.com/ask-st-peters/trails',
+    directions:
+      'https://www.google.com/maps/search/?api=1&query=trails%20near%20St.%20Peter%27s%20Nova%20Scotia',
+    confirmationNote:
+      'Confirm trail conditions, parking, washrooms, pet rules, and weather before heading out.',
+  },
+  {
+    name: 'Easy Family Loop',
+    category: 'Family-friendly',
+    description:
+      'A gentle outing plan with short travel time, room to move around, and flexible pacing for kids.',
+    bestFor: 'Families with young children or multi-generation groups',
+    timeNeeded: '60-120 minutes',
+    area: 'Village, waterfront, or nearby open space',
+    phone: '+19025550105',
+    website: 'https://example.com/ask-st-peters/family',
+    directions:
+      'https://www.google.com/maps/search/?api=1&query=family%20activities%20near%20St.%20Peter%27s%20Nova%20Scotia',
+    confirmationNote:
+      'Confirm age suitability, washrooms, stroller access, food options, and current operating details.',
+  },
+  {
+    name: 'Rainy-Day Browse',
+    category: 'Rainy day',
+    description:
+      'A weather-friendly stop for browsing, learning, or taking a dry break when outdoor plans get soggy.',
+    bestFor: 'Rain delays, relaxed mornings, and visitors without gear',
+    timeNeeded: '30-75 minutes',
+    area: 'Indoor stop in or near the village',
+    phone: '+19025550106',
+    website: 'https://example.com/ask-st-peters/rainy-day',
+    directions:
+      'https://www.google.com/maps/search/?api=1&query=indoor%20things%20to%20do%20near%20St.%20Peter%27s%20Nova%20Scotia',
+    confirmationNote:
+      'Confirm hours, admission, accessibility, and seasonal availability before making the trip.',
+  },
+  {
+    name: 'Five-Minute Scenic Reset',
+    category: 'Something easy',
+    description:
+      'A quick, low-commitment stop for a view, a stretch, and a simple answer when nobody wants a big plan.',
+    bestFor: 'Road-trippers, marina guests, and late-afternoon gaps',
+    timeNeeded: '10-25 minutes',
+    area: 'Lookoff, wharf, or waterfront pull-in',
+    phone: '+19025550107',
+    website: 'https://example.com/ask-st-peters/easy',
+    directions:
+      'https://www.google.com/maps/search/?api=1&query=scenic%20view%20St.%20Peter%27s%20Nova%20Scotia',
+    confirmationNote:
+      'Confirm parking, public access, daylight, road conditions, and any posted restrictions on arrival.',
+  },
+  {
+    name: 'Today or This-Week Event Check',
+    category: 'Events',
+    description:
+      'A manual event prompt for visitors to check what might be happening nearby before choosing a plan.',
+    bestFor: 'Evenings, weekends, and visitors who like local happenings',
+    timeNeeded: 'Varies by event',
+    area: 'St. Peter\'s and surrounding communities',
+    phone: '+19025550108',
+    website: 'https://example.com/ask-st-peters/events',
+    directions:
+      'https://www.google.com/maps/search/?api=1&query=events%20near%20St.%20Peter%27s%20Nova%20Scotia',
+    confirmationNote:
+      'Confirm date, time, location, tickets, capacity, cancellation notices, and organizer details.',
+  },
+]
+
+function AskStPetersPage() {
+  const [selectedCategory, setSelectedCategory] = useState<Category>('All')
+  const [source] = useState(() => {
+    const value = new URLSearchParams(window.location.search).get('source')
+    return value?.trim() || 'direct'
+  })
+
+  const filteredRecommendations = useMemo(() => {
+    if (selectedCategory === 'All') {
+      return recommendations
+    }
+
+    return recommendations.filter(
+      (recommendation) => recommendation.category === selectedCategory,
+    )
+  }, [selectedCategory])
+
+  return (
+    <main className="ask-page">
+      <section className="ask-hero" aria-labelledby="ask-title">
+        <div className="ask-source">Source: {source}</div>
+        <p className="ask-kicker">Visitor concierge pilot</p>
+        <h1 id="ask-title">Ask St. Peter&apos;s</h1>
+        <p className="ask-subtitle">
+          Find what to do nearby today &mdash; water, food, trails, history,
+          family stops, and rainy-day ideas.
+        </p>
+        <p className="ask-disclaimer">
+          Always confirm hours, availability, pricing, safety, and booking
+          details directly with each operator.
+        </p>
+      </section>
+
+      <section className="ask-section" aria-labelledby="category-title">
+        <div className="ask-section-heading">
+          <h2 id="category-title">What sounds right?</h2>
+          <p>{filteredRecommendations.length} manual ideas</p>
+        </div>
+        <div className="category-filters" aria-label="Recommendation filters">
+          {categories.map((category) => (
+            <button
+              className={category === selectedCategory ? 'active' : ''}
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              type="button"
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="recommendation-list" aria-label="Recommendations">
+        {filteredRecommendations.map((recommendation) => (
+          <article className="recommendation-card" key={recommendation.name}>
+            <div className="recommendation-topline">
+              <span>{recommendation.category}</span>
+              <strong>Needs verification</strong>
+            </div>
+            <h2>{recommendation.name}</h2>
+            <p className="recommendation-description">
+              {recommendation.description}
+            </p>
+            <dl className="recommendation-details">
+              <div>
+                <dt>Best for</dt>
+                <dd>{recommendation.bestFor}</dd>
+              </div>
+              <div>
+                <dt>Time needed</dt>
+                <dd>{recommendation.timeNeeded}</dd>
+              </div>
+              <div>
+                <dt>Area</dt>
+                <dd>{recommendation.area}</dd>
+              </div>
+            </dl>
+            <div className="recommendation-actions">
+              <a href={`tel:${recommendation.phone}`}>Call</a>
+              <a
+                href={recommendation.website}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Website / Book Direct
+              </a>
+              <a
+                href={recommendation.directions}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Directions
+              </a>
+            </div>
+            <p className="confirmation-note">
+              {recommendation.confirmationNote}
+            </p>
+          </article>
+        ))}
+      </section>
+
+      <section className="pilot-callout" aria-labelledby="pilot-title">
+        <h2 id="pilot-title">Founding pilot</h2>
+        <p>
+          Are you a local operator or host location? Ask St. Peter&apos;s is
+          opening a small founding pilot for verified recommendations and QR
+          host locations.
+        </p>
+        <a href="mailto:lucasliamlegacystudios@gmail.com?subject=Ask%20St.%20Peter's%20Founding%20Pilot">
+          Ask about the founding pilot
+        </a>
+      </section>
+    </main>
+  )
+}
+
+function StarterPage() {
   const [count, setCount] = useState(0)
 
   return (
@@ -24,7 +299,7 @@ function App() {
         <button
           type="button"
           className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          onClick={() => setCount((currentCount) => currentCount + 1)}
         >
           Count is {count}
         </button>
@@ -117,6 +392,14 @@ function App() {
       <section id="spacer"></section>
     </>
   )
+}
+
+function App() {
+  if (window.location.pathname === '/ask-st-peters') {
+    return <AskStPetersPage />
+  }
+
+  return <StarterPage />
 }
 
 export default App
