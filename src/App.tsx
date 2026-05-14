@@ -140,6 +140,10 @@ const recommendations: Recommendation[] = [
   },
 ]
 
+const formatStarterIdeaCount = (count: number) => {
+  return `${count} starter ${count === 1 ? 'idea' : 'ideas'}`
+}
+
 function AskStPetersPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category>('All')
   const [emailCopied, setEmailCopied] = useState(false)
@@ -193,19 +197,22 @@ function AskStPetersPage() {
       <section className="ask-section" aria-labelledby="category-title">
         <div className="ask-section-heading">
           <h2 id="category-title">What sounds right?</h2>
-          <p>{filteredRecommendations.length} manual ideas</p>
+          <p>{formatStarterIdeaCount(filteredRecommendations.length)}</p>
         </div>
-        <div className="category-filters" aria-label="Recommendation filters">
-          {categories.map((category) => (
-            <button
-              className={category === selectedCategory ? 'active' : ''}
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              type="button"
-            >
-              {category}
-            </button>
-          ))}
+        <p className="filter-helper">Swipe categories &rarr;</p>
+        <div className="filter-rail">
+          <div className="category-filters" aria-label="Recommendation filters">
+            {categories.map((category) => (
+              <button
+                className={category === selectedCategory ? 'active' : ''}
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                type="button"
+              >
+                {category}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -260,17 +267,9 @@ function AskStPetersPage() {
                   )}
                 </>
               ) : (
-                <>
-                  <button disabled type="button">
-                    Call pending
-                  </button>
-                  <button disabled type="button">
-                    Link pending
-                  </button>
-                  <button disabled type="button">
-                    Directions pending
-                  </button>
-                </>
+                <p className="pending-contact">
+                  Contact details pending verification.
+                </p>
               )}
             </div>
             <p className="placeholder-note">
